@@ -28,11 +28,11 @@ const getAllowedOrigins = (): string[] => {
     ];
   }
 
-  // In production, only allow your actual frontend domain
-  // Add your production domain here
+  // In production, allow the configured frontend URL
   return [
-    process.env.FRONTEND_URL || 'https://your-production-domain.com',
-  ];
+    env.frontendUrl,
+    'https://income-tracker-gamma.vercel.app',
+  ].filter(Boolean);
 };
 
 export const corsMiddleware = cors({
