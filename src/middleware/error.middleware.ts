@@ -19,10 +19,8 @@ export function errorHandler(
   res: Response,
   _next: NextFunction
 ): Response {
-  // Log error in development
-  if (env.nodeEnv === 'development') {
-    console.error('Error:', err);
-  }
+  // Always log errors to console for debugging (visible in Render logs)
+  console.error('Error:', err);
 
   // Handle Zod validation errors
   if (err instanceof ZodError) {
