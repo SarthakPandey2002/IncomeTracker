@@ -63,22 +63,27 @@ export class CsvController {
 
   // POST /api/csv/import
   async import(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    console.log('[CSV Import] Starting import request');
     try {
       const userId = req.user?.id;
+      console.log('[CSV Import] User ID:', userId);
       if (!userId) throw new AppError('Unauthorized', 401);
 
       const file = req.file;
+      console.log('[CSV Import] File:', file?.originalname);
       if (!file) {
         throw new AppError('No file provided. Please upload a CSV or XLSX file.');
       }
 
       // Parse mapping from JSON string (FormData sends it as string)
+      console.log('[CSV Import] Request body:', req.body);
       const body = {
         source_name: req.body.source_name,
         mapping: typeof req.body.mapping === 'string'
           ? JSON.parse(req.body.mapping)
           : req.body.mapping,
       };
+      console.log('[CSV Import] Parsed body:', body);
 
       const { source_name, mapping } = importSchema.parse(body);
       const fileType = this.getFileType(file.originalname);
@@ -139,6 +144,7 @@ export class CsvController {
         aiCategorized: categorizedMap.size,
       }, `Successfully imported ${result.inserted} records`);
     } catch (error) {
+      console.error('[CSV Import] Error:', error);
       next(error);
     }
   }

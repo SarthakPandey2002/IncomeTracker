@@ -46,6 +46,12 @@ app.use(express.urlencoded({ extended: true, limit: REQUEST_SIZE_LIMITS.urlencod
 // 5. Security logger for suspicious activity detection
 app.use(securityLogger);
 
+// 6. Request logger - log all incoming requests
+app.use((req, _res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
+
 // Trust proxy if behind reverse proxy (for accurate IP in rate limiting)
 // Only enable this if you're behind a proxy like nginx or load balancer
 if (env.nodeEnv === 'production') {

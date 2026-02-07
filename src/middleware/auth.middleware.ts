@@ -35,6 +35,7 @@ export async function authMiddleware(
     req.user = data.user;
     next();
   } catch (error) {
+    console.error('Auth middleware error:', error);
     ApiResponse.serverError(res, 'Authentication error');
   }
 }
