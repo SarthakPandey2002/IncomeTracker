@@ -148,10 +148,15 @@ export class CsvService {
     return records;
   }
 
-  // Parse amount string to number (handles $, commas, etc.)
-  private parseAmount(amountStr: string): number {
+  // Parse amount string/number to number (handles $, commas, etc.)
+  private parseAmount(amountValue: string | number): number {
+    // If already a number (common with Excel files), return directly
+    if (typeof amountValue === 'number') {
+      return amountValue;
+    }
+
     // Remove currency symbols, commas, and whitespace
-    const cleaned = amountStr
+    const cleaned = String(amountValue)
       .replace(/[$ ₹€£,]/g, '')
       .replace(/\s/g, '')
       .trim();
@@ -160,8 +165,27 @@ export class CsvService {
   }
 
   // Parse various date formats to YYYY-MM-DD
-  private parseDate(dateStr: string): string | null {
-    const cleaned = dateStr.trim();
+  private parseDate(dateValue: string | number | Date): string | null {
+    // Handle Date objects (common with Excel files)
+    if (dateValue instanceof Date) {
+      if (!isNaN(dateValue.getTime())) {
+        return dateValue.toISOString().split('T')[0] || null;
+      }
+      return null;
+    }
+
+    // Handle Excel serial date numbers
+    if (typeof dateValue === 'number') {
+      // Excel serial date: days since 1900-01-01 (with a bug for 1900 leap year)
+      const excelEpoch = new Date(1899, 11, 30); // Dec 30, 1899
+      const date = new Date(excelEpoch.getTime() + dateValue * 24 * 60 * 60 * 1000);
+      if (!isNaN(date.getTime())) {
+        return date.toISOString().split('T')[0] || null;
+      }
+      return null;
+    }
+
+    const cleaned = String(dateValue).trim();
 
     // Try common formats
     const formats = [
